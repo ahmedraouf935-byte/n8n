@@ -1,11 +1,14 @@
 import { redirect } from "next/navigation";
 import { login, getCurrentUser } from "@/lib/auth/session";
+import { getSql } from "@/lib/db/client";
 import { Button, Field, Input, Notice } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   if (await getCurrentUser().catch(() => null)) redirect("/");
+  const [{ n }] = await getSql()<{ n: number }[]>`SELECT count(*)::int AS n FROM users`;
+  if (n === 0) redirect("/setup");
   const { error } = await searchParams;
   async function doLogin(fd: FormData) {
     "use server";

@@ -12,10 +12,15 @@ declare global {
 
 export function createSql(url = process.env.DATABASE_URL): Sql {
   if (!url) throw new Error("DATABASE_URL is not set");
+  // Transaction-mode poolers (Supabase :6543, Neon "-pooler" hosts, PgBouncer) don't support prepared statements.
+  const pooled = /pooler|:6543\b|pgbouncer=true/.test(url);
   const sql = postgres(url, {
-    max: Number(process.env.DATABASE_POOL_MAX ?? 5),
+    // Serverless (Vercel) functions should each hold very few connections.
+    max: Number(process.env.DATABASE_POOL_MAX ?? (process.env.VERCEL ? 1 : 5)),
     idle_timeout: 20,
-    ssl: process.env.DATABASE_SSL === "require" ? "require" : undefined,
+    connect_timeout: 15,
+    prepare: process.env.DATABASE_PREPARE ? process.env.DATABASE_PREPARE !== "false" : !pooled,
+    ssl: process.env.DATABASE_SSL === "require" || /sslmode=require/.test(url) ? "require" : undefined,
     // numeric/bigint -> JS number. All money values are < 2^53 piastres so this is safe.
     types: {
       numeric: { to: 1700, from: [1700], serialize: (x: unknown) => String(x), parse: (x: string) => Number(x) },

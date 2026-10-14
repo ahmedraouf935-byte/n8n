@@ -1,0 +1,82 @@
+{
+  "base": "http://localhost:3200",
+  "run": "mv8gos07",
+  "at": "2026-10-14T18:47:14.601Z",
+  "steps": [
+    {
+      "step": "Target is a demo database",
+      "status": "PASS",
+      "detail": "http://localhost:3200 (environment=demo)"
+    },
+    {
+      "step": "First-run owner setup (/setup)",
+      "status": "PASS",
+      "detail": "http://localhost:3200/settings"
+    },
+    {
+      "step": "Capital recorded in cash ledger",
+      "status": "PASS",
+      "detail": "النقد المسجل في الدفتر: ‏٥٬٠٠٠٫٠٠ ج.م.‏ · رأس المال المودَع: ‏٥٬٠٠٠٫٠٠ ج.م.‏"
+    },
+    {
+      "step": "1. Trend import (API)",
+      "status": "PASS",
+      "detail": "created=2 duplicate=0 run=1"
+    },
+    {
+      "step": "1b. Re-import is idempotent",
+      "status": "PASS",
+      "detail": "created=0 duplicate=1"
+    },
+    {
+      "step": "2. Product + variant created from signal",
+      "status": "PASS",
+      "detail": "variantId=1"
+    },
+    {
+      "step": "3. Retail offers ingested; different size auto-excluded",
+      "status": "PASS",
+      "detail": "unreviewed, unreviewed, unreviewed, unreviewed, mismatch"
+    },
+    {
+      "step": "3b. Owner confirmed exact matches → included in comparison",
+      "status": "PASS",
+      "detail": "4 offers in price range"
+    },
+    {
+      "step": "4. Supplier registered with Telegram chat id",
+      "status": "PASS",
+      "detail": "chat -1001792003628"
+    },
+    {
+      "step": "4b. Telegram post ingested and parsed",
+      "status": "PASS",
+      "detail": "[{\"offerId\":1,\"flags\":[],\"candidates\":1}]"
+    },
+    {
+      "step": "4c. Offer linked from supplier inbox",
+      "status": "PASS",
+      "detail": "offer 1 → variant 1"
+    },
+    {
+      "step": "5. Match confirmed + availability verified + variant verified",
+      "status": "PASS",
+      "detail": "owner actions recorded"
+    },
+    {
+      "step": "6. Profitability calculated",
+      "status": "PASS",
+      "detail": "wholesale ‏٥٧٫٠٠ ج.م.‏ · recommended ‏٢٠٥٫٠٠ ج.م.‏ · contribution/unit ‏٥٣٫٦٤ ج.م.‏ · margin ٢٠٫٨٪ · break-even orders ١٢"
+    },
+    {
+      "step": "6b. Recommendation with explanation",
+      "status": "PASS",
+      "detail": "score=68.7 band=مراجعة يدوية"
+    },
+    {
+      "step": "7. Purchase request created; safety gates evaluated",
+      "status": "PASS",
+      "detail": "all gates passed — awaiting owner approval (not approved by test)"
+    }
+  ]
+}

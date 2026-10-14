@@ -2,6 +2,8 @@
 
 An AI-assisted commerce platform for an Egyptian micro-commerce business. It handles evidence-backed product discovery, comparison of Egyptian retail prices against wholesale quotes, realistic profitability, owner-approved test purchases, inventory, orders, cash and marketing. The dashboard is in Arabic (RTL).
 
+> **Go live:** [DEPLOYMENT.md](DEPLOYMENT.md) · [docs/GO_LIVE_REPORT.md](docs/GO_LIVE_REPORT.md) · [docs/TELEGRAM_SETUP.md](docs/TELEGRAM_SETUP.md)
+>
 > Start with: [PROJECT_PLAN.md](PROJECT_PLAN.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [DATA_SOURCES.md](DATA_SOURCES.md) · [TASKS.md](TASKS.md) · [docs/N8N_SETUP.md](docs/N8N_SETUP.md) · [docs/API.md](docs/API.md)
 
 ![Overview (demo environment)](docs/screenshots/overview.png)
@@ -48,6 +50,8 @@ DATABASE_URL=postgres://…/safqa_demo npm run db:seed-demo     # refuses to run
 Every page in the demo environment shows a banner. All demo URLs point to `example.invalid`.
 
 ## Deployment
+Step-by-step: **[DEPLOYMENT.md](DEPLOYMENT.md)** (Neon + Vercel, one-time `/setup` owner page, migrate-on-build).
+
 1. **Database:** a managed Postgres such as Supabase or Neon. Set `DATABASE_URL` and `DATABASE_SSL=require`, then run `npm run db:migrate` once from your machine or CI.
 2. **App:** Vercel (or any Node host: Railway, Render, a VPS with `npm run build && npm start`). Set every variable from `.env.example`. Keep test and production credentials separate.
 3. Create the owner account against the production DB with `db:create-admin`.
@@ -63,6 +67,9 @@ createdb safqa_test               # or set TEST_DATABASE_URL
 npm test                          # unit + integration (integration uses a real Postgres)
 npm run typecheck
 npm run build
+npm run preflight                 # deployment config/DB/migrations/owner check (PASS/WARN/FAIL)
+BASE_URL=… N8N_WEBHOOK_SECRET=… npm run security:check   # black-box auth & security checks
+BASE_URL=… N8N_WEBHOOK_SECRET=… npm run test:e2e         # full product workflow (demo DB only)
 ```
 **Latest results:** 6 files, **71 tests passed**, 0 failed. Typecheck clean, production build OK. See [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) for the mapping to the brief's acceptance criteria and the manual browser/API checks.
 

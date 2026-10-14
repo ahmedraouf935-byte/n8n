@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "./lib/auth/jwt";
 
 // Machine endpoints authenticate themselves (bearer secret / Telegram secret token).
-const PUBLIC = [/^\/login/, /^\/api\/v1\//, /^\/api\/telegram\//, /^\/api\/health/];
+const PUBLIC = [/^\/login/, /^\/setup$/, /^\/api\/v1\//, /^\/api\/telegram\//, /^\/api\/health/];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

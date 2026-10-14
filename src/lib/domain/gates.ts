@@ -92,7 +92,7 @@ export function checkPurchaseGates(g: GateInput): { approved: boolean; gates: Ga
   // 5. No high-confidence spending on weak data
   add("data_confidence", g.scoreConfidence !== null && g.scoreConfidence !== "low",
     g.scoreConfidence === null ? "لا يوجد تقييم محسوب للمنتج." :
-      g.scoreConfidence === "low" ? "الثقة في البيانات منخفضة (بيانات قديمة أو ناقصة)." : `الثقة في البيانات: ${g.scoreConfidence}.`);
+      g.scoreConfidence === "low" ? "الثقة في البيانات منخفضة (بيانات قديمة أو ناقصة)." : `الثقة في البيانات: ${g.scoreConfidence === "high" ? "عالية" : "متوسطة"}.`);
 
   // 6. Category compliance
   if (g.blockedCategories.includes(g.riskCategory)) add("category_blocked", false, "فئة محظورة — لا يمكن شراؤها.");

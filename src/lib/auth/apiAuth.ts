@@ -37,6 +37,7 @@ export function machineRoute(handler: (req: NextRequest) => Promise<unknown>) {
       const result = await handler(req);
       return NextResponse.json({ ok: true, ...(result as object) });
     } catch (e) {
+      if (e instanceof SyntaxError) return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
       if (e instanceof ZodError) return NextResponse.json({ ok: false, error: "validation_error", issues: e.issues }, { status: 400 });
       if (e instanceof DomainError) return NextResponse.json({ ok: false, error: e.code, message: e.message }, { status: 422 });
       console.error("[api]", e);

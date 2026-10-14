@@ -15,7 +15,12 @@
     "n8n:build": "tsx n8n/build-workflows.ts",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
-    "test:integration": "vitest run tests/integration"
+    "test:integration": "vitest run tests/integration",
+    "vercel-build": "node scripts/vercel-build.mjs",
+    "preflight": "tsx scripts/preflight.ts",
+    "telegram": "tsx scripts/telegram-setup.ts",
+    "test:e2e": "tsx scripts/e2e-walkthrough.ts",
+    "security:check": "tsx scripts/security-check.ts"
   },
   "engines": {
     "node": ">=20"
@@ -39,10 +44,16 @@
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "playwright-core": "^1.56.0",
     "postcss": "^8.5.30",
     "tailwindcss": "^4.1.13",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.30"
+    }
   }
 }

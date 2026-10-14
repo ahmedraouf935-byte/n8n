@@ -10,6 +10,19 @@ export type AppEnvironment = "production" | "demo" | "test";
  * a demo database can never be relabelled as production (acceptance criterion 15).
  */
 export async function migrate(sql: Sql, environment: AppEnvironment, dir = path.join(process.cwd(), "migrations")) {
+  // Session-level advisory lock: concurrent deploys/CI runs wait instead of racing.
+  // Held on one reserved connection for the whole run.
+  const lockConn = await sql.reserve();
+  try {
+    await lockConn`SELECT pg_advisory_lock(727001)`;
+    return await migrateLocked(sql, environment, dir);
+  } finally {
+    await lockConn`SELECT pg_advisory_unlock(727001)`.catch(() => {});
+    lockConn.release();
+  }
+}
+
+async function migrateLocked(sql: Sql, environment: AppEnvironment, dir: string) {
   await sql`CREATE TABLE IF NOT EXISTS schema_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS environment_stamp (
     singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
