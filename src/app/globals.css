@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --surface-2: #f1f1ee;
+  --border: #e3e2dd;
+  --text: #111412;
+  --text-2: #4d524e;
+  --muted: #7a7f7b;
+  --accent: #15803d;          /* restrained green */
+  --accent-soft: #e8f3ec;
+  --accent-ink: #ffffff;
+  --good: #15803d; --good-soft: #e7f4ec;
+  --warn: #a16207; --warn-soft: #fbf3dc;
+  --bad: #b42318; --bad-soft: #fdecea;
+  --info: #1d4ed8; --info-soft: #e8eefc;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --chart-surface: #fcfcfb;
+  --grid: #ecebe7;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111312; --surface: #181a19; --surface-2: #1f2221; --border: #2c302e; --text: #eef0ee; --text-2: #b9beba; --muted: #8b918d;
+    --accent: #4ade80; --accent-soft: #15301f; --accent-ink: #062b12;
+    --good: #4ade80; --good-soft: #15301f; --warn: #fbbf24; --warn-soft: #33290c; --bad: #f87171; --bad-soft: #3a1717; --info: #93b4ff; --info-soft: #172242;
+    --series-1: #3987e5; --series-2: #d95926; --chart-surface: #1a1a19; --grid: #2a2d2b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111312; --surface: #181a19; --surface-2: #1f2221; --border: #2c302e; --text: #eef0ee; --text-2: #b9beba; --muted: #8b918d;
+  --accent: #4ade80; --accent-soft: #15301f; --accent-ink: #062b12;
+  --good: #4ade80; --good-soft: #15301f; --warn: #fbbf24; --warn-soft: #33290c; --bad: #f87171; --bad-soft: #3a1717; --info: #93b4ff; --info-soft: #172242;
+  --series-1: #3987e5; --series-2: #d95926; --chart-surface: #1a1a19; --grid: #2a2d2b;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-good: var(--good); --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn); --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad); --color-bad-soft: var(--bad-soft);
+  --color-info: var(--info); --color-info-soft: var(--info-soft);
+  --font-sans: var(--font-arabic), "Segoe UI", Tahoma, system-ui, sans-serif;
+}
+
+html, body { background: var(--bg); color: var(--text); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.num { font-variant-numeric: tabular-nums; }
+input, select, textarea { font: inherit; }
+a { color: inherit; }
+details > summary { cursor: pointer; list-style: none; }
+details > summary::-webkit-details-marker { display: none; }

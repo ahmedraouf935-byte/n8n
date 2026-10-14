@@ -1,0 +1,99 @@
+{
+  "name": "SAFQA — 12 Owner approval notifications",
+  "nodes": [
+    {
+      "id": "16d083f0-8feb-93e8-9be7-5810dccc6679",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 12 Owner approval notifications\nDelivers pending Telegram notifications (purchase approvals needed, failed publishing, dead jobs). Failures are recorded, never marked sent.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "cb253119-1d62-f805-99c9-9e6e62d27b62",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "5,20,35,50 * * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "d70a1349-9855-2562-4b87-b35ee875fa0e",
+      "name": "Dispatch pending notifications",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/enqueue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobType: \"dispatch_notifications\", idempotencyKey: \"dispatch_notifications:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd-HH') + '-' + Math.floor($now.minute / 15), runNow: true }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Dispatch pending notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

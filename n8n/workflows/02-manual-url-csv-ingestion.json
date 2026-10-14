@@ -1,0 +1,127 @@
+{
+  "name": "SAFQA — 02 Manual URL & CSV ingestion",
+  "nodes": [
+    {
+      "id": "8b44d6f3-557c-b4cd-4d66-60451c9379ca",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 02 Manual URL & CSV ingestion\nLets you (or a phone shortcut) submit product URLs/observations or a small CSV. The webhook is protected with its own Header Auth credential. For large CSV files use the dashboard upload in رادار الترند.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "a98803ce-fc6d-2d9e-48cd-f2fd827b3817",
+      "name": "Webhook (header auth)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "85dc30a1-a760-172b-0b19-e4c106e2bd3b",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "safqa-manual-ingest",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA Inbound Webhook"
+        }
+      }
+    },
+    {
+      "id": "a231319c-93f7-1193-9e92-cd8b1a9ff440",
+      "name": "Normalize payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Accepts {items:[...]} JSON, or {csv:\"...\"} text with header row.\nconst body = $json.body ?? $json;\nif (Array.isArray(body.items)) return [{ json: { items: body.items } }];\nif (typeof body.csv === 'string') {\n  const [head, ...lines] = body.csv.trim().split(/\\r?\\n/);\n  const cols = head.split(',').map(s => s.trim());\n  const items = lines.map(l => { const v = l.split(','); const o = {}; cols.forEach((c, i) => o[c] = (v[i] ?? '').trim()); return o; })\n    .map(r => ({ title: r.title, platform: r.platform, evidenceType: r.evidence_type, sourceUrl: r.url || null, region: r.region || 'EG',\n      metricType: r.metric_type || null, metricValue: r.metric_value ? Number(r.metric_value) : null, previousValue: r.previous_value ? Number(r.previous_value) : null }));\n  return [{ json: { items } }];\n}\nthrow new Error('Expected {items:[...]} or {csv:\"...\"}');"
+      }
+    },
+    {
+      "id": "a37a1ec6-5531-f059-ed25-3960a30d68ea",
+      "name": "POST trends to SAFQA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/ingest/trends",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ source: \"n8n_webhook\", method: \"webhook\", items: $json.items }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Webhook (header auth)": {
+      "main": [
+        [
+          {
+            "node": "Normalize payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize payload": {
+      "main": [
+        [
+          {
+            "node": "POST trends to SAFQA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

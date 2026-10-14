@@ -1,0 +1,99 @@
+{
+  "name": "SAFQA — 09 Daily research pipeline (profitability + scoring)",
+  "nodes": [
+    {
+      "id": "29aa139f-3620-4d82-daff-4a4482457ef7",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 09 Daily research pipeline (profitability + scoring)\nDaily morning run: freshness → supplier matching → duplicate flags → profitability → opportunity scoring. Idempotent per day (idempotency key = date).",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "25f73472-36b5-1a5e-ae4b-a01a7862cb55",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "10 7 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dd4de2c5-87c4-a404-b5ac-ebe7e7b574e6",
+      "name": "Enqueue daily_research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/enqueue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobType: \"daily_research\", idempotencyKey: \"daily_research:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd'), runNow: true }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Enqueue daily_research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

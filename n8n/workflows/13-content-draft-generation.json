@@ -1,0 +1,99 @@
+{
+  "name": "SAFQA — 13 Content draft generation",
+  "nodes": [
+    {
+      "id": "2213f24d-03b7-2eaf-e6a7-aaf0fcd8aaf8",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 13 Content draft generation\nCreates Arabic caption drafts for in-stock testing/active products from verified attributes only. Drafts always wait for owner approval.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "5e4f0e38-8217-847c-2304-2a116adc2b9a",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bcd30674-c7e8-593d-f411-c6c0c773b10b",
+      "name": "Generate drafts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/enqueue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobType: \"generate_content_drafts\", idempotencyKey: \"generate_content_drafts:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd'), runNow: true }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Daily 09:00": {
+      "main": [
+        [
+          {
+            "node": "Generate drafts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

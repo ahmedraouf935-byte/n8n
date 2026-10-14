@@ -7,6 +7,7 @@ import { buildDailySummary } from "./reports";
 import { refreshOfferFreshness } from "./suppliers";
 import { publishDuePosts } from "./marketing";
 import { cairoDateKey } from "../domain/time";
+import { aiExtractSupplierPosts, detectDuplicateProducts, generateContentDrafts, matchSupplierOffers } from "./automation";
 
 /**
  * Durable job queue in Postgres (FOR UPDATE SKIP LOCKED). n8n's schedule triggers call
@@ -31,8 +32,14 @@ export const JOB_HANDLERS: Record<string, (sql: Sql, payload: Record<string, unk
   },
   dispatch_notifications: (sql) => dispatchPendingTelegram(sql),
   publish_due_posts: (sql) => publishDuePosts(sql, SYSTEM),
+  match_supplier_offers: (sql) => matchSupplierOffers(sql),
+  detect_duplicates: (sql) => detectDuplicateProducts(sql),
+  ai_extract_supplier_posts: (sql) => aiExtractSupplierPosts(sql),
+  generate_content_drafts: (sql) => generateContentDrafts(sql),
   daily_research: async (sql) => ({
     freshness: await refreshOfferFreshness(sql),
+    matching: await matchSupplierOffers(sql),
+    duplicates: await detectDuplicateProducts(sql),
     scoring: await refreshAllOpportunities(sql),
   }),
 };

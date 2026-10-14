@@ -197,10 +197,10 @@ describe("SAFQA end-to-end business flow", () => {
     await expect(transitionOrder(sql, owner, orderId, "delivered")).rejects.toThrow(/لا يمكن الانتقال/);
     await transitionOrder(sql, owner, orderId, "packed", { packagingCost: 8 });
     await transitionOrder(sql, owner, orderId, "shipped", { carrier: "Bosta", carrierCost: 60 });
-    [l] = await sql`SELECT on_hand, reserved, in_transit, sold FROM inventory_levels WHERE variant_id = ${variantId}` as never;
+    [l] = await sql<{ on_hand: number; reserved: number; in_transit: number; sold: number }[]>`SELECT on_hand, reserved, in_transit, sold FROM inventory_levels WHERE variant_id = ${variantId}`;
     expect(l).toEqual({ on_hand: 18, reserved: 0, in_transit: 2, sold: 0 });
     await transitionOrder(sql, owner, orderId, "delivered", { collected: true, collectionFee: 5.7 });
-    [l] = await sql`SELECT on_hand, reserved, in_transit, sold FROM inventory_levels WHERE variant_id = ${variantId}` as never;
+    [l] = await sql<{ on_hand: number; reserved: number; in_transit: number; sold: number }[]>`SELECT on_hand, reserved, in_transit, sold FROM inventory_levels WHERE variant_id = ${variantId}`;
     expect(l).toEqual({ on_hand: 18, reserved: 0, in_transit: 0, sold: 2 });
     const cash = await getCashPosition(sql);
     expect(cash.cashBalance).toBe(5000 - 1200 - 50 - 8 - 60 + 570 - 5.7);

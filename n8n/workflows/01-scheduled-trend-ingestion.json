@@ -1,0 +1,159 @@
+{
+  "name": "SAFQA — 01 Scheduled trend ingestion",
+  "nodes": [
+    {
+      "id": "993b3248-d40b-d02c-b531-49c197e9fed4",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 01 Scheduled trend ingestion\nReads the owner's research sheet (Google Trends / TikTok Creative Center / Ad Library findings recorded with URLs) and pushes them to SAFQA. **Disabled** until a Google Sheets credential is connected — there is no authorized public API for TikTok Creative Center or commercial Meta Ad Library data in Egypt.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "c4a7b4a1-1b44-1314-c5bb-3dad8a4a5d7a",
+      "name": "Daily 06:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 6 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7b03871d-0ec2-1ee5-d91f-65db25c19cae",
+      "name": "Read research sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        0
+      ],
+      "disabled": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PASTE_YOUR_RESEARCH_SHEET_URL"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "trends"
+        }
+      },
+      "notes": "DISABLED: connect your Google Sheets credential and sheet URL, then enable. Columns: title, platform, evidence_type, url, region, metric_type, metric_value, previous_value, discovered_at, notes"
+    },
+    {
+      "id": "1d78dc8e-d512-14e5-18b5-114fe24490ae",
+      "name": "Map rows to signals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Only rows with a real source are forwarded; nothing is invented here.\nconst items = $input.all().map(i => i.json).filter(r => r.title && r.platform && r.evidence_type).map(r => ({\n  title: String(r.title), titleEn: r.title_en || null, platform: String(r.platform), evidenceType: String(r.evidence_type),\n  sourceUrl: r.url || null, region: r.region || 'EG', metricType: r.metric_type || null,\n  metricValue: r.metric_value === '' || r.metric_value == null ? null : Number(r.metric_value),\n  previousValue: r.previous_value === '' || r.previous_value == null ? null : Number(r.previous_value),\n  discoveredAt: r.discovered_at || undefined, notes: r.notes || null,\n}));\nreturn [{ json: { items } }];"
+      }
+    },
+    {
+      "id": "a37a1ec6-5531-f059-ed25-3960a30d68ea",
+      "name": "POST trends to SAFQA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/ingest/trends",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ source: \"n8n_webhook\", method: \"webhook\", idempotencyKey: \"sheet-trends:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd'), items: $json.items }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Daily 06:30": {
+      "main": [
+        [
+          {
+            "node": "Read research sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read research sheet": {
+      "main": [
+        [
+          {
+            "node": "Map rows to signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map rows to signals": {
+      "main": [
+        [
+          {
+            "node": "POST trends to SAFQA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "name": "SAFQA — 07 Supplier matching",
+  "nodes": [
+    {
+      "id": "a3b83df6-a8dd-7166-33df-da631aeee0d0",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 07 Supplier matching\nDaily. Re-runs matching of unmatched supplier offers against the catalog (attribute conflicts block matches). Results are 'probable' until the owner confirms.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "25f73472-36b5-1a5e-ae4b-a01a7862cb55",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "50 6 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "126eb975-0bc8-c535-342b-e3b2456c42a7",
+      "name": "Enqueue match_supplier_offers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/enqueue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobType: \"match_supplier_offers\", idempotencyKey: \"match_supplier_offers:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd'), runNow: true }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Enqueue match_supplier_offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

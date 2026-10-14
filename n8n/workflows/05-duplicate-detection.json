@@ -1,0 +1,99 @@
+{
+  "name": "SAFQA — 05 Duplicate detection",
+  "nodes": [
+    {
+      "id": "df8cd4f8-6c84-db86-e3f4-a90cf115d4ff",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 05 Duplicate detection\nDaily. Flags products whose normalized Arabic/English names are very similar for owner review. Never merges automatically.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "25f73472-36b5-1a5e-ae4b-a01a7862cb55",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "40 6 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3b46b0b4-e3ac-3c09-d800-6f5faea30f00",
+      "name": "Enqueue detect_duplicates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/enqueue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobType: \"detect_duplicates\", idempotencyKey: \"detect_duplicates:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd'), runNow: true }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Enqueue detect_duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

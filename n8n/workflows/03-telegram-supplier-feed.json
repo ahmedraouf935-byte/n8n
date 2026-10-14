@@ -1,0 +1,104 @@
+{
+  "name": "SAFQA — 03 Telegram supplier feed",
+  "nodes": [
+    {
+      "id": "aab89479-71e9-12b4-4305-350df114f085",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 03 Telegram supplier feed\nReceives posts from supplier channels where the bot is an **admin** (or groups where privacy mode allows it). SAFQA ignores chats not registered on a supplier record, parses price/MOQ, deduplicates by message id and suggests (never confirms) a product match. Telegram allows ONE webhook per bot: do not also set TELEGRAM_WEBHOOK_SECRET direct webhook.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "daabfdfa-a98a-ae77-406b-94448b1ebc74",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "3b32bc76-f63f-0760-d031-cf3f9df78ea0",
+      "parameters": {
+        "updates": [
+          "channel_post",
+          "message",
+          "edited_channel_post"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA Telegram Bot"
+        }
+      }
+    },
+    {
+      "id": "28e3a394-3fde-c167-fa19-d3345e558feb",
+      "name": "POST supplier post to SAFQA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/ingest/supplier-posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ updates: [$json], idempotencyKey: \"tg-update:\" + $json.update_id }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "POST supplier post to SAFQA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

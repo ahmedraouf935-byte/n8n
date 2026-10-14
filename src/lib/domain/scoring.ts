@@ -144,7 +144,8 @@ const RISK_BASE: Record<RiskCategory, number> = {
 function riskScore(input: ScoreInput): ScoreLine {
   const { category, weightGrams, fragile } = input.risk;
   let s = RISK_BASE[category];
-  const reasons = [`فئة المخاطر: ${category}.`];
+  const AR: Record<RiskCategory, string> = { general: "عامة", cosmetics: "تجميل", medical: "طبية", electronics: "إلكترونيات", food: "أغذية", children: "أطفال", regulated: "منظَّمة", prohibited: "محظورة" };
+  const reasons = [`فئة المخاطر: ${AR[category]}.`];
   if (category !== "general") reasons.push("فئة حساسة تتطلب فحوصات إضافية قبل الشراء.");
   if (weightGrams && weightGrams > 2000) { s -= 35; reasons.push("وزن ثقيل (>2كجم) يرفع تكلفة الشحن."); }
   else if (weightGrams && weightGrams > 1000) { s -= 20; reasons.push("وزن متوسط (>1كجم)."); }

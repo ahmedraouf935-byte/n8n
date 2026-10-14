@@ -1,0 +1,99 @@
+{
+  "name": "SAFQA — 04 Supplier post AI extraction",
+  "nodes": [
+    {
+      "id": "df388e7c-e324-c6b6-8ccf-efb88fb1695b",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ],
+      "parameters": {
+        "content": "## 04 Supplier post AI extraction\nHourly. Uses Claude (if ANTHROPIC_API_KEY is set) to extract structured details from uncertain supplier posts into an evidence note. Never overwrites prices or marks stock verified. Skips cleanly when AI is not configured; respects the monthly AI budget.",
+        "height": 220,
+        "width": 520
+      }
+    },
+    {
+      "id": "25f73472-36b5-1a5e-ae4b-a01a7862cb55",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "15 * * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9a2e2aa6-01d4-1cfb-a3c7-2b1db02114db",
+      "name": "Enqueue ai_extract_supplier_posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/enqueue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobType: \"ai_extract_supplier_posts\", idempotencyKey: \"ai_extract_supplier_posts:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd-HH'), runNow: true }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "SAFQA API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Enqueue ai_extract_supplier_posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Cairo",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "safqa"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
