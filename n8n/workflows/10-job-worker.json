@@ -11,14 +11,14 @@
         -260
       ],
       "parameters": {
-        "content": "## 10 Job queue worker\nRuns queued jobs with retries and exponential backoff (jobs that fail 3 times are marked dead and alert the owner).",
+        "content": "## 10 Job queue worker\nHourly safety net: runs queued jobs and retries failed ones with exponential backoff (jobs that fail 3 times are marked dead and alert the owner). Scheduled workflows already run their job immediately, so this only matters for retries.",
         "height": 220,
         "width": 520
       }
     },
     {
-      "id": "cb253119-1d62-f805-99c9-9e6e62d27b62",
-      "name": "Every 15 minutes",
+      "id": "71ea2ab4-f06c-52cc-cc8e-9a00ba051c97",
+      "name": "Hourly at :25",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -30,7 +30,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "*/15 * * * *"
+              "expression": "25 * * * *"
             }
           ]
         }
@@ -47,7 +47,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/tick",
+        "url": "https://safqa-indol.vercel.app/api/v1/jobs/tick",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": {
@@ -66,7 +66,7 @@
     }
   ],
   "connections": {
-    "Every 15 minutes": {
+    "Hourly at :25": {
       "main": [
         [
           {

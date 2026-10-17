@@ -5,6 +5,9 @@ import { DomainError } from "@/lib/services/errors";
 import { addRetailOffer } from "@/lib/services/retail";
 import { refreshOpportunity } from "@/lib/services/analysis";
 
+// Allows long-running jobs on Vercel (Hobby max 60 s).
+export const maxDuration = 60;
+
 const Body = z.object({ items: z.array(z.unknown()).max(100) });
 
 /**

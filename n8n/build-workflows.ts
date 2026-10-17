@@ -146,9 +146,9 @@ for (const [file, name, cron, job, key, notes] of jobFlows) {
 
 // 10 — job worker tick
 files.push(wf("10-job-worker.json", "10 Job queue worker", [
-  schedule("Every 15 minutes", "*/15 * * * *", [0, 0]),
+  schedule("Hourly at :25", "25 * * * *", [0, 0]),
   http("Run ready jobs", "POST", "/api/v1/jobs/tick", null, [240, 0]),
-], [["Every 15 minutes", "Run ready jobs"]], "Runs queued jobs with retries and exponential backoff (jobs that fail 3 times are marked dead and alert the owner)."));
+], [["Hourly at :25", "Run ready jobs"]], "Hourly safety net: runs queued jobs and retries failed ones with exponential backoff (jobs that fail 3 times are marked dead and alert the owner). Scheduled workflows already run their job immediately, so this only matters for retries."));
 
 // 11 — daily Telegram report
 files.push(wf("11-daily-telegram-report.json", "11 Daily Telegram report", [
@@ -160,9 +160,9 @@ files.push(wf("11-daily-telegram-report.json", "11 Daily Telegram report", [
 
 // 12 — owner approval notifications
 files.push(wf("12-owner-approval-notifications.json", "12 Owner approval notifications", [
-  schedule("Every 15 minutes", "5,20,35,50 * * * *", [0, 0]),
-  enqueue("Dispatch pending notifications", "dispatch_notifications", QUARTER, [240, 0]),
-], [["Every 15 minutes", "Dispatch pending notifications"]], "Delivers pending Telegram notifications (purchase approvals needed, failed publishing, dead jobs). Failures are recorded, never marked sent."));
+  schedule("Hourly at :05", "5 * * * *", [0, 0]),
+  enqueue("Dispatch pending notifications", "dispatch_notifications", HOUR, [240, 0]),
+], [["Hourly at :05", "Dispatch pending notifications"]], "Delivers pending Telegram notifications (purchase approvals needed, failed publishing, dead jobs). Failures are recorded, never marked sent."));
 
 // 13 — content drafts
 files.push(wf("13-content-draft-generation.json", "13 Content draft generation", [

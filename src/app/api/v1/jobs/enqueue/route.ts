@@ -3,6 +3,9 @@ import { machineRoute } from "@/lib/auth/apiAuth";
 import { getSql } from "@/lib/db/client";
 import { enqueueJob, JOB_HANDLERS, runReadyJobs } from "@/lib/services/jobs";
 
+// Allows long-running jobs on Vercel (Hobby max 60 s).
+export const maxDuration = 60;
+
 const Body = z.object({
   jobType: z.string().refine((j) => j in JOB_HANDLERS, "unknown job type"),
   idempotencyKey: z.string().max(200).optional(),

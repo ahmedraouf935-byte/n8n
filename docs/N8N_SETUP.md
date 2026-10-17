@@ -33,9 +33,9 @@ In n8n, go to **Workflows → Import from file** and import each JSON file. In e
 | 07-supplier-matching | Re-match unmatched offers | 06:50 |
 | 08-freshness-checks | Stale quotes / expired verifications | every 6 h |
 | 09-daily-research-pipeline | Full morning pipeline (idempotent per day) | 07:10 |
-| 10-job-worker | Run queued jobs with retries | every 15 min |
+| 10-job-worker | Retry queued/failed jobs (safety net) | hourly :25 |
 | 11-daily-telegram-report | Daily summary to the owner | 08:00 |
-| 12-owner-approval-notifications | Send pending alerts/approvals | every 15 min |
+| 12-owner-approval-notifications | Send pending alerts/approvals | hourly :05 |
 | 13-content-draft-generation | Drafts for in-stock products | 09:00 |
 | 14-approved-social-publishing | Publish approved due posts | every 30 min |
 | 15-low-stock-warnings | Low stock alerts | 10:00 |

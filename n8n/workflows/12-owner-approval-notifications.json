@@ -17,8 +17,8 @@
       }
     },
     {
-      "id": "cb253119-1d62-f805-99c9-9e6e62d27b62",
-      "name": "Every 15 minutes",
+      "id": "710265ad-c2d8-4e8a-dbff-5fbad412afa7",
+      "name": "Hourly at :05",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -30,7 +30,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "5,20,35,50 * * * *"
+              "expression": "5 * * * *"
             }
           ]
         }
@@ -47,12 +47,12 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/jobs/enqueue",
+        "url": "https://safqa-indol.vercel.app/api/v1/jobs/enqueue",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ jobType: \"dispatch_notifications\", idempotencyKey: \"dispatch_notifications:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd-HH') + '-' + Math.floor($now.minute / 15), runNow: true }) }}",
+        "jsonBody": "={{ JSON.stringify({ jobType: \"dispatch_notifications\", idempotencyKey: \"dispatch_notifications:\" + $now.setZone('Africa/Cairo').toFormat('yyyy-LL-dd-HH'), runNow: true }) }}",
         "options": {
           "timeout": 60000
         }
@@ -69,7 +69,7 @@
     }
   ],
   "connections": {
-    "Every 15 minutes": {
+    "Hourly at :05": {
       "main": [
         [
           {

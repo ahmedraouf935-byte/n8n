@@ -38,7 +38,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/alerts",
+        "url": "https://safqa-indol.vercel.app/api/v1/alerts",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,

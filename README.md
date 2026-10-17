@@ -78,7 +78,7 @@ BASE_URL=… N8N_WEBHOOK_SECRET=… npm run test:e2e         # full product work
 |---|---|---|---|
 | Hosting | Vercel Hobby | $0 | Vercel's Hobby plan is for **non-commercial** use, so a business should use Pro (~$20) or a ~$5–7 Railway/Render instance |
 | Database | Supabase Free / Neon Free | $0 | Small storage limits; Supabase free projects pause after inactivity. Paid tier ~$25 (Supabase Pro) or ~$19 (Neon Launch) |
-| n8n Cloud | Owner's existing plan | Existing | 16 workflows; most run once a day, the worker every 15 min (~3,000 executions/month). Check your plan's execution quota, or reduce the worker to hourly |
+| n8n Cloud | Owner's existing plan | Existing | All 16 active ≈ 4,000 scheduled executions/month (publishing every 30 min is the largest). The recommended starter set ≈ 1,500/month — check your plan's quota in n8n → Usage |
 | Telegram Bot API | — | $0 | |
 | Meta Graph API | — | $0 | Ad spend is separate and comes from the advertising budget |
 | Claude API | Optional | ~$0.5–5 | Capped by the "AI monthly budget" setting (default $5). Extraction is low-volume |

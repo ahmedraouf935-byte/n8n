@@ -52,7 +52,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/ingest/supplier-posts",
+        "url": "https://safqa-indol.vercel.app/api/v1/ingest/supplier-posts",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,

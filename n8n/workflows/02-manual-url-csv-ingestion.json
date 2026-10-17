@@ -64,7 +64,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://YOUR-SAFQA-DOMAIN/api/v1/ingest/trends",
+        "url": "https://safqa-indol.vercel.app/api/v1/ingest/trends",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
